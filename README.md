@@ -1,6 +1,6 @@
-# ErlangAnalytics_Prophet
+# ErlangProphet
 
-This project is intended to be a python API to create forecasts using Prophet library from Facebook. You can easily create forecast by setting the parameters at `main.py` and executing the script afterwards. The parameters are:
+This project is intended to be a python API to create forecasts using Prophet library from Facebook. Is implementes an MQTT environment with the `python_dispatcher.py` and `python_forecast.py` files. Neverhteles, you can easily create forecast by setting the parameters at `Prophet/main.py` and executing the script afterwards. The parameters are:
 
 - df (python str): Path to input data.
 - forecast_params (python Dict): parameters to use in the forecast.
@@ -17,5 +17,5 @@ This project is intended to be a python API to create forecasts using Prophet li
 The following command is an example of forecast using "mse" metric. Take into account that you need to change the {PATH_TO_PROJECT} by the real path in your computer:
 
 ```
- python .\main.py -df "./data/input/births.csv" -forecast_params "./data/input/variables.json" -metric "mse" -output_name "{PATH_TO_PROJECT}/data/outputs/births_forecast"
+ python ./Prophet/main.py -df "./Prophet/data/input/births.csv" -forecast_params "./Prophet/data/input/variables.json" -metric "mse" -output_name "{PATH_TO_PROJECT}/Prophet/data/outputs/births_forecast"
 ```
