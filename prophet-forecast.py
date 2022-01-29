@@ -51,11 +51,18 @@ filename = client_uuid + '.json'
 
 metric="mse" #Por ahora es esa de manera fija, pero hay que meterlo en Trello para que se fije en la interfaz
 
-forecast, posterior_params = forecast(df=df,
-									  args=forecast_params,
-									  metric=metric,
-									  output="/home/desarrollo/ErlangAnalytics/ErlangAnalytics/Data/")
 
+print("Empezando forecast")
+sys.stdout.flush()
+
+with suppress_stdout_stderr():
+
+	forecast, posterior_params = forecast(df=df,
+										  args=forecast_params,
+										  metric=metric,
+										  output="/home/desarrollo/ErlangAnalytics/ErlangAnalytics/Data/")
+
+print("Forecast terminado")
 sys.stdout.flush()
 							
 forecast = json.loads(forecast.to_json())
@@ -74,6 +81,9 @@ data = {
 	"changepoints": str(posterior_params["changepoints"]),
 	"performance_metrics": posterior_params["metrics"]
 }
+
+print("Generando JSON")
+sys.stdout.flush()
 
 file = open('../ErlangAnalytics/Data/' + filename, 'w')
 file.write(json.dumps(data))
