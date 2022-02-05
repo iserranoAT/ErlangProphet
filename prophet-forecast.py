@@ -55,12 +55,10 @@ metric="mse" #Por ahora es esa de manera fija, pero hay que meterlo en Trello pa
 print("Empezando forecast")
 sys.stdout.flush()
 
-with suppress_stdout_stderr():
-
-	forecast, posterior_params = forecast(df=df,
-										  args=forecast_params,
-										  metric=metric,
-										  output="/home/desarrollo/ErlangAnalytics/ErlangAnalytics/Data/")
+forecast, posterior_params = forecast(df=df,
+									  args=forecast_params,
+									  metric=metric,
+									  output="/home/desarrollo/ErlangAnalytics/ErlangAnalytics/Data/")
 
 print("Forecast terminado")
 sys.stdout.flush()
