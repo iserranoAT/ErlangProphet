@@ -71,12 +71,12 @@ data = {
 	"trend": forecast['trend'],
 	"yhat_lower": forecast['yhat_lower'],
 	"yhat_upper": forecast['yhat_upper'],
-	"holidays": str(forecast['holidays']),
-	"weekly": [],
-	"monthly": [],
-	"yearly": [],
-	"holidays_consideradas": str(posterior_params["holidays"]),
-	"changepoints": str(posterior_params["changepoints"]),
+	"holidays": forecast['holidays'],
+	"weekly": posterior_params['weekly'],
+	"monthly": posterior_params['monthly'],
+	"yearly": posterior_params['yearly'],
+	"holidays_consideradas": posterior_params["holidays"],
+	"changepoints": posterior_params["changepoints"],
 	"performance_metrics": posterior_params["metrics"]
 }
 

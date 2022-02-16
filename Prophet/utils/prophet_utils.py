@@ -1,6 +1,9 @@
 import matplotlib
 matplotlib.use('Agg')
 import numpy as np
+import pandas as pd
+import json
+from fbprophet.plot import seasonality_plot_df
 
 def set_floor_cap(df, growth):
     
@@ -75,3 +78,20 @@ def check_args(arguments):
 
     if arguments["growth"]["type"] == "logistic" and arguments["growth"]["cap_type"] == "constante" and arguments["growth"]["floor_type"] == "constante":
         assert float(arguments["growth"]["cap"]) > float(arguments["growth"]["floor"]), "El valor FLOOR ha de ser menor que CAP"
+        
+def get_seasonal_components(model, seasonality_flags, component_name, dates, frecuency):
+    
+    component = {}
+    
+    assert component_name in ["daily", "monthly", "weekly", "yearly"], "El nombre de la componente no es correcto"
+    
+    if seasonality_flags[component_name]:
+        
+    	days = pd.date_range(start=dates.min(), end=dates.max(), freq=frecuency)
+    	        
+    	df_component = seasonality_plot_df(model, days)
+    	seas = model.predict_seasonal_components(df_component)
+    	
+    	component = json.loads(seas[component_name].to_json())
+    
+    return component
