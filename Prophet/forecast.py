@@ -112,25 +112,25 @@ def forecast(df, args, metric, output):
     sys.stdout.flush()
     print("Generando gráficas")
     
-    '''
-    daily=get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='daily', dates=df['ds'], frecuency='D')
-    weekly=get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='weekly', dates=df['ds'], frecuency='W')
-    monthly=get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='monthly', dates=df['ds'], frecuency='M')
-    yearly=get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='yearly', dates=df['ds'], frecuency='Y')
-    '''
+    seas = {
+        "daily": get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='daily', dates=df['ds']),
+        "weekly": get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='weekly', dates=df['ds']),
+        "monthly": get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='monthly', dates=df['ds']),
+        "yearly": get_seasonal_components(model=m, seasonality_flags=args['seasonality'], component_name='yearly', dates=df['ds'])
+    }
     
-    days = pd.date_range(start=df['ds'].min(), end=df['ds'].max())
-        
-    df_component = seasonality_plot_df(m, days)
-    seas = m.predict_seasonal_components(df_component)
+    
+    #days = pd.date_range(start=df['ds'].min(), end=df['ds'].max())
+    #df_component = seasonality_plot_df(m, days)
+    #seas = m.predict_seasonal_components(df_component)
     
     posterior_params = {
         "changepoints": json.loads(m.changepoints.to_json()),
         "metrics": json.loads(metrics.to_json()),
         "holidays": json.loads(es_holidays.to_json()),
-        "weekly": json.loads(seas["weekly"].to_json()) if args["seasonality"]["weekly"] else {},
-        "monthly": json.loads(seas["monthly"].to_json()) if args["seasonality"]["monthly"] else {},
-        "yearly": json.loads(seas["yearly"].to_json()) if args["seasonality"]["yearly"] else {},
+        "weekly": seas["weekly"] if args["seasonality"]["weekly"] else {},
+        "monthly": seas["monthly"] if args["seasonality"]["monthly"] else {},
+        "yearly": seas["yearly"] if args["seasonality"]["yearly"] else {}
     }
     
     sys.stdout.flush()

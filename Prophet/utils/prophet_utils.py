@@ -79,15 +79,21 @@ def check_args(arguments):
     if arguments["growth"]["type"] == "logistic" and arguments["growth"]["cap_type"] == "constante" and arguments["growth"]["floor_type"] == "constante":
         assert float(arguments["growth"]["cap"]) > float(arguments["growth"]["floor"]), "El valor FLOOR ha de ser menor que CAP"
         
-def get_seasonal_components(model, seasonality_flags, component_name, dates, frecuency):
+def get_seasonal_components(model, seasonality_flags, component_name, dates):
     
     component = {}
+    periods={
+        "daily": 1,
+        "weekly": 7,
+        "monthly": 30,
+        "yearly": 365
+    }
     
     assert component_name in ["daily", "monthly", "weekly", "yearly"], "El nombre de la componente no es correcto"
     
     if seasonality_flags[component_name]:
         
-    	days = pd.date_range(start=dates.min(), end=dates.max(), freq=frecuency)
+    	days = pd.date_range(start=dates.min(), end=dates.max(), periods=periods[component_name])
     	        
     	df_component = seasonality_plot_df(model, days)
     	seas = model.predict_seasonal_components(df_component)
