@@ -9,12 +9,10 @@ import pandas as pd
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation
 from fbprophet.diagnostics import performance_metrics
-from fbprophet.plot import plot_cross_validation_metric
-from fbprophet.plot import seasonality_plot_df
 from loguru import logger
+from fbprophet.plot import plot_plotly, plot_components_plotly
 
-from Prophet.utils.prophet_utils import check_args, set_floor_cap, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
-import matplotlib.pyplot as plt
+from Prophet.utils.prophet_utils import check_args, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
 
 class suppress_stdout_stderr(object):
 	'''
@@ -96,7 +94,13 @@ def forecast(df, args, metric, output):
 
     logger.info(f"Starting forecast with duration of {args['duration']} days")
     forecast = m.predict(df_future)
-    
+
+    fig_forecast = plot_plotly(m, forecast)
+    fig_components = plot_components_plotly(m, forecast)
+
+    #fig_forecast.show()
+    #fig_components.show()
+
     sys.stdout.flush()
     print("Validando forecast")
     with suppress_stdout_stderr():
