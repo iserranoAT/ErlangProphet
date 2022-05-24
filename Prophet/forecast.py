@@ -5,12 +5,16 @@ import holidays
 import logging
 logging.getLogger('fbprophet').setLevel(logging.WARNING)
 
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
 import pandas as pd
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation
 from fbprophet.diagnostics import performance_metrics
 from loguru import logger
-from fbprophet.plot import plot_plotly, plot_components_plotly
+from fbprophet.plot import plot_plotly, plot_components_plotly, plot_cross_validation_metric
 
 from Prophet.utils.prophet_utils import check_args, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
 
@@ -62,6 +66,15 @@ def forecast(df, args, metric, output):
 
     check_args(args)
 
+    duracion_serie = df.shape[0]
+    duracion_forecast=args["duration"]
+
+    args["cross_validation"] = {
+        "initial": f"{int(duracion_serie*0.40)} days",
+        "horizon": f"{int(duracion_forecast)} days",
+        "period": f"{int(duracion_serie*0.10)} days"
+    }
+
     df['ds'] = pd.to_datetime(df["ds"]).dt.date
 
     years = list(set([elem.year for elem in df['ds']]))
@@ -104,15 +117,13 @@ def forecast(df, args, metric, output):
     sys.stdout.flush()
     print("Validando forecast")
     with suppress_stdout_stderr():
-        df_cv = cross_validation(m, args["cross_validation"]['horizon'], args["cross_validation"]['initial'], args["cross_validation"]['period'])
-        cutoff = df_cv['cutoff'].unique()[0]
-        df_cv = df_cv[df_cv['cutoff'].values == cutoff]
+        df_cv = cross_validation(m, args["cross_validation"]['horizon'], args["cross_validation"]['period'], args["cross_validation"]['initial'])
 
     sys.stdout.flush()
     print("Calculando métricas")
 
-    metrics = performance_metrics(df_cv)
-    
+    metrics = performance_metrics(df_cv, rolling_window=0.1)
+
     sys.stdout.flush()
     print("Generando gráficas")
     
