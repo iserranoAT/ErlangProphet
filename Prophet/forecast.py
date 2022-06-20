@@ -67,13 +67,19 @@ def forecast(df, args, metric, output):
     check_args(args)
 
     duracion_serie = df.shape[0]
-    duracion_forecast=args["duration"]
+    duracion_forecast = args["duration"]
+    unidades = args["unidades"]
 
     args["cross_validation"] = {
-        "initial": f"{int(duracion_serie*0.40)} days",
-        "horizon": f"{int(duracion_forecast)} days",
-        "period": f"{int(duracion_serie*0.10)} days"
+        "initial": f"{int(duracion_serie*0.40)} {unidades}",
+        "horizon": f"{int(duracion_forecast)} {unidades} "
     }
+
+    if "period_%" in args:
+        period=args["period_%"]
+        args["cross_validation"]["period"] = f"{int(duracion_serie * period)} {unidades}"
+    else:
+        args["cross_validation"]["period"] = f"{int(duracion_serie * 0.1)} {unidades}"
 
     df['ds'] = pd.to_datetime(df["ds"]).dt.date
 
@@ -105,7 +111,7 @@ def forecast(df, args, metric, output):
         df_future = get_future_df(m, args['duration'], args['hourly'])
         df_future = set_floor_cap(df_future, args['growth'])
 
-    logger.info(f"Starting forecast with duration of {args['duration']} days")
+    logger.info(f"Starting forecast with duration of {args['duration']} {unidades}")
     forecast = m.predict(df_future)
 
     fig_forecast = plot_plotly(m, forecast)
@@ -147,7 +153,7 @@ def forecast(df, args, metric, output):
         "monthly": seas["monthly"] if args["seasonality"]["monthly"] else {},
         "yearly": seas["yearly"] if args["seasonality"]["yearly"] else {}
     }
-    
+
     sys.stdout.flush()
     print("Forecast finalizado")
     
