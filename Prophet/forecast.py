@@ -16,7 +16,7 @@ from fbprophet.diagnostics import performance_metrics
 from loguru import logger
 from fbprophet.plot import plot_plotly, plot_components_plotly, plot_cross_validation_metric
 
-from Prophet.utils.prophet_utils import check_args, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
+from Prophet.utils.prophet_utils import setup_prior_rgs, setup_posterior_rgs, check_args, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
 
 class suppress_stdout_stderr(object):
 	'''
@@ -48,10 +48,11 @@ class suppress_stdout_stderr(object):
 		os.close(self.null_fds[0])
 		os.close(self.null_fds[1])
 		
-def forecast(df, args, metric, output):
+def forecast(df, df_rgs, args, metric, output):
 
     '''
     :param df (pandas DataFrame): Datos de entrada.
+    :param df_rgs (pandas DataFrame): Datos de regresores.
     :param args (python Dict): Parámetros a usar en el pronóstico.
     :param metric (python str): Métrica a usar para la validación cruzada. Usar alguna de las siguientes:
         'mse': mean squared error
@@ -98,6 +99,9 @@ def forecast(df, args, metric, output):
                 holidays_prior_scale=args['holidays']['sensibility'],
                 weekly_seasonality=True)
 
+    if df_rgs is not None:
+        df, df_rgs_prior, m = setup_prior_rgs(df, df_rgs, m)
+
     m = set_seasonalities(m, args['seasonality'], args['seasonality']['fourier'], args['seasonality']['priorScale'])
     
     sys.stdout.flush()
@@ -110,12 +114,14 @@ def forecast(df, args, metric, output):
     with suppress_stdout_stderr():
         df_future = get_future_df(m, args['duration'], args['hourly'])
         df_future = set_floor_cap(df_future, args['growth'])
+        if df_rgs is not None:
+            df = setup_posterior_rgs(df_future, df_rgs)
 
     logger.info(f"Starting forecast with duration of {args['duration']} {unidades}")
-    forecast = m.predict(df_future)
+    forecast = m.predict(df_future.interpolate(method='ffill'))
 
-    fig_forecast = plot_plotly(m, forecast)
-    fig_components = plot_components_plotly(m, forecast)
+    #fig_forecast = plot_plotly(m, forecast)
+    #fig_components = plot_components_plotly(m, forecast)
 
     #fig_forecast.show()
     #fig_components.show()
