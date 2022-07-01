@@ -16,7 +16,10 @@ from fbprophet.diagnostics import performance_metrics
 from loguru import logger
 from fbprophet.plot import plot_plotly, plot_components_plotly, plot_cross_validation_metric
 
-from Prophet.utils.prophet_utils import setup_prior_rgs, setup_posterior_rgs, check_args, set_seasonalities, get_future_df, set_floor_cap, get_seasonal_components
+from Prophet.utils.posterior_utils import get_future_df, get_seasonal_components
+from Prophet.utils.prior_utils import set_seasonalities, set_floor_cap
+from Prophet.utils.quality_utils import check_args
+from Prophet.utils.regressors_utils import setup_prior_rgs, setup_posterior_rgs
 
 class suppress_stdout_stderr(object):
 	'''
