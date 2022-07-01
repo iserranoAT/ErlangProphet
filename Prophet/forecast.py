@@ -18,7 +18,7 @@ from fbprophet.plot import plot_plotly, plot_components_plotly, plot_cross_valid
 
 from Prophet.utils.posterior_utils import get_future_df, get_seasonal_components
 from Prophet.utils.prior_utils import set_seasonalities, set_floor_cap
-from Prophet.utils.quality_utils import check_args
+from Prophet.utils.quality_utils import check_args, check_regressors_df
 from Prophet.utils.regressors_utils import setup_prior_rgs, setup_posterior_rgs
 
 class suppress_stdout_stderr(object):
@@ -69,7 +69,7 @@ def forecast(df, df_rgs, args, metric, output):
     '''
 
     check_args(args)
-
+    regressors = df_rgs is not None and check_regressors_df(df_rgs)
     duracion_serie = df.shape[0]
     duracion_forecast = args["duration"]
     unidades = args["unidades"]
@@ -102,7 +102,7 @@ def forecast(df, df_rgs, args, metric, output):
                 holidays_prior_scale=args['holidays']['sensibility'],
                 weekly_seasonality=True)
 
-    if df_rgs is not None:
+    if regressors:
         df, df_rgs_prior, m = setup_prior_rgs(df, df_rgs, m)
 
     m = set_seasonalities(m, args['seasonality'], args['seasonality']['fourier'], args['seasonality']['priorScale'])
@@ -117,7 +117,7 @@ def forecast(df, df_rgs, args, metric, output):
     with suppress_stdout_stderr():
         df_future = get_future_df(m, args['duration'], args['hourly'])
         df_future = set_floor_cap(df_future, args['growth'])
-        if df_rgs is not None:
+        if regressors:
             df = setup_posterior_rgs(df_future, df_rgs)
 
     logger.info(f"Starting forecast with duration of {args['duration']} {unidades}")

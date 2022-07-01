@@ -35,8 +35,6 @@ def add_regressor_to_future(future, regressors_df):
 
 def setup_regressors(df, df_regressors):
 
-    assert "ds" in list(df_regressors), "El DataFrame de regressores no contiene la columna de fecha"
-
     df_regressors['ds'] = pd.to_datetime(df_regressors["ds"]).dt.date
     df_regressors = df_regressors[(df_regressors['ds'] >= min(df["ds"])) & (df_regressors['ds'] <= max(df["ds"]))]
 
