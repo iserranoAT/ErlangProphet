@@ -6,10 +6,10 @@ import logging
 logging.getLogger('fbprophet').setLevel(logging.WARNING)
 
 import matplotlib
-matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 
 import pandas as pd
+from typing import Optional, Dict
 from fbprophet import Prophet
 from fbprophet.diagnostics import cross_validation
 from fbprophet.diagnostics import performance_metrics
@@ -51,7 +51,11 @@ class suppress_stdout_stderr(object):
 		os.close(self.null_fds[0])
 		os.close(self.null_fds[1])
 		
-def forecast(df, df_rgs, args, metric, output):
+def forecast(df: pd.DataFrame = None, 
+             df_rgs: Optional[pd.DataFrame] = None,
+             args: Dict = {}, 
+             metric: Optional[str] = "", 
+             output: str = ""):
 
     '''
     :param df (pandas DataFrame): Datos de entrada.
