@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 # 
-
-import paho.mqtt.client as mqtt
 import os
 import subprocess
 import sys
 import json
+
+import paho.mqtt.client as paho
+from paho import mqtt
 
 
 class suppress_stdout_stderr(object):
@@ -37,18 +38,16 @@ class suppress_stdout_stderr(object):
 		os.close(self.null_fds[0])
 		os.close(self.null_fds[1])
 
-client = mqtt.Client()
-
-
 def on_log(client, userdata, level, buf):
 	print(("log: ", buf))
-
-def on_connect(client, userdata, flags, rc):
+	
+def on_connect(client, userdata, flags, rc, properties=None):
 	print('--> Conectado al servidor MQTT')
 	client.subscribe("forecast/+/prophet/+/command")
 
-
 def on_message(client, userdata, msg):
+	
+	print("--> Mensaje MQTT recibido")
 	
 	decoded_payload = msg.payload.decode("utf-8")
 	
@@ -76,10 +75,13 @@ def on_message(client, userdata, msg):
 	
 	print('--> Terminado')
 
+client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
+
+client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
+client.username_pw_set("analyticaltribe", "Analytical1234")
+client.connect("f6636b093da44e2e93194b58a0e2f350.s2.eu.hivemq.cloud", 8883)
+
 client.on_connect = on_connect
 client.on_message = on_message
-
-client.username_pw_set("svnhlhos", "C2dYodq4hmRj")
-client.connect('m23.cloudmqtt.com', 17683, 240)
 
 client.loop_forever()
